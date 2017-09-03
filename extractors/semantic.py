@@ -273,6 +273,6 @@ class SemanticDS(object):
                 if r is not None:
                     result.append(r)
 
-    @classmethod
-    def detect_master_path(cls, *paths):
+    @staticmethod
+    def detect_master_path(*paths):
         return get_master_path(*paths, separator='.')
