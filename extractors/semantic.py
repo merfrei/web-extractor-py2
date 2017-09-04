@@ -81,12 +81,18 @@ class SemanticDataUtils(object):
     """
 
     @classmethod
-    def parse_microdata(cls, data):
+    def parse_microdata(cls, data, key=None):
         def get_key(t):
             return re.search(r'\.org\/(\w+)/?|$', t).group(1) or t
         microdata = {}
         if isinstance(data, list):
             for d in data:
+                if not isinstance(d, dict):
+                    if key is not None:
+                        if key not in microdata:
+                            microdata[key] = []
+                        microdata[key].append(d)
+                    continue
                 k = get_key(d['type'])
                 v = cls.parse_microdata(d['properties'])
                 if k in microdata:
@@ -102,7 +108,7 @@ class SemanticDataUtils(object):
                     k = get_key(v['type'])
                     microdata[k] = cls.parse_microdata(v['properties'])
                 elif isinstance(v, list):
-                    microdata.update(cls.parse_microdata(v))
+                    microdata.update(cls.parse_microdata(v, key=k_))
                 else:
                     microdata[k_] = v
         else:
