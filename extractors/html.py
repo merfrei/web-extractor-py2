@@ -41,8 +41,9 @@ class XPathExtractor(object):
                 attr = kwargs.get('attr', 'text()')
                 xpath = '//*[contains({}, "{}")]'.format(attr, t)
                 for e in self._tree.xpath(xpath):
-                    if hasattr(e, 'text') and e.text is not None \
-                       and t == e.text.strip():
+                    if attr != 'text()' or (hasattr(e, 'text') and
+                                            e.text is not None
+                                            and t == e.text.strip()):
                         results.append(e)
                 extract_plist.extend([self._tree.getpath(r) for r in results])
             except IndexError:
