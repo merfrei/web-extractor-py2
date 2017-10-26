@@ -94,6 +94,8 @@ class SemanticDataUtils(object):
                         microdata[key].append(d)
                     continue
                 k = get_key(d['type'])
+                if 'properties' not in d:
+                    continue
                 v = cls.parse_microdata(d['properties'])
                 if k in microdata:
                     if isinstance(microdata[k], list):
