@@ -3,9 +3,14 @@
 - Cleaning and reformatting the extruct library output to easily parse the content
 - Using semantic data selectors (with an object notation type) to extract the data"""
 
+
 import re
 import requests
-import extruct
+from lxml.html import fromstring
+from extruct.jsonld import JsonLdExtractor
+from extruct.rdfa import RDFaExtractor
+from extruct.w3cmicrodata import MicrodataExtractor
+from extruct.xmldom import XmlDomHTMLParser
 from extractors.utils import get_master_path
 
 
@@ -16,7 +21,7 @@ class SemanticDataBase(object):
 
     def __init__(self, html, url=''):
         self._url = url
-        self._original = extruct.extract(html, url)
+        self._original = self._extract(html, url)
         self._init_data()
 
     def __getitem__(self, key):
@@ -28,7 +33,25 @@ class SemanticDataBase(object):
     def _init_data(self):
         self._data = {}
         for k, c in self._parsing_methods():
-            self._data[k] = c[0](self._original[c[1]])
+            orig_k = c[1]
+            if orig_k in self._original:
+                self._data[k] = c[0](self._original[orig_k])
+
+    def _extract(self, htmlstring, url='', encoding='UTF-8'):
+        domparser = XmlDomHTMLParser(encoding=encoding)
+        tree = fromstring(htmlstring, parser=domparser)
+        extractors = (
+            ('json-ld', JsonLdExtractor()),
+            ('microdata', MicrodataExtractor()),
+            ('rdfa', RDFaExtractor()))
+        data = {}
+        for name, extractor in extractors:
+            try:
+                data[name] = extractor.extract_items(tree, url=url)
+            except:
+                # ERROR!!
+                continue
+        return data
 
     def keys(self):
         return self._data.keys()
