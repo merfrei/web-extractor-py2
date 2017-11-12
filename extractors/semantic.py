@@ -33,7 +33,7 @@ class SemanticDataBase(object):
         self._data = {}
         for k, c in self._parsing_methods():
             orig_k = c[1]
-            if orig_k in self._original:
+            if orig_k in original:
                 self._data[k] = c[0](original[orig_k])
 
     def _extract(self, htmlstring, url='', encoding='UTF-8'):
