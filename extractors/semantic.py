@@ -20,9 +20,7 @@ class SemanticDataBase(object):
     Methods that should never be overriden"""
 
     def __init__(self, html, url=''):
-        self._url = url
-        self._original = self._extract(html, url)
-        self._init_data()
+        self._init_data(html, url)
 
     def __getitem__(self, key):
         return self._data[key]
@@ -30,12 +28,13 @@ class SemanticDataBase(object):
     def __contains__(self, key):
         return (key in self._data)
 
-    def _init_data(self):
+    def _init_data(self, html, url=''):
+        original = self._extract(html, url)
         self._data = {}
         for k, c in self._parsing_methods():
             orig_k = c[1]
             if orig_k in self._original:
-                self._data[k] = c[0](self._original[orig_k])
+                self._data[k] = c[0](original[orig_k])
 
     def _extract(self, htmlstring, url='', encoding='UTF-8'):
         domparser = XmlDomHTMLParser(encoding=encoding)
